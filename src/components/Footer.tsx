@@ -49,7 +49,7 @@ export default function Footer() {
           <Socials small />
         </div>
         <p className="m-0 w-full border-t border-[#2f89c5]/18 pt-[1.2rem] font-[family-name:var(--font-jetbrains)] text-[0.68rem] font-medium tracking-[0.14em] text-[#7d90a2] uppercase">
-          Copyright &copy; 2026 Big Things 501(c)(3). All Rights Reserved.
+          © 2026 bighthingssoftware.org. All rights reserved. bighthingssoftware.org is operated by Big Things, a registered tax-exempt organization.
         </p>
       </div>
     </footer>
