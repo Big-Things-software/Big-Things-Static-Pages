@@ -48,7 +48,7 @@ export default function Footer() {
         <div className="ml-auto max-md:ml-0">
           <Socials small />
         </div>
-        <p className="m-0 w-full border-t border-[#2f89c5]/18 pt-[1.2rem] font-[family-name:var(--font-jetbrains)] text-[0.68rem] font-medium tracking-[0.14em] text-[#7d90a2] uppercase">
+        <p className="text-center m-0 w-full border-t border-[#2f89c5]/18 pt-[1.2rem] font-[family-name:var(--font-jetbrains)] text-[0.68rem] font-medium tracking-[0.14em] text-[#7d90a2] uppercase">
           © 2026 bighthingssoftware.org. All rights reserved. bighthingssoftware.org is operated by Big Things, a registered tax-exempt organization.
         </p>
       </div>
