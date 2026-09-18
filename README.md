@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is the [Big Things Software](https://bigthingssoftware.org) static pages site — the code for the static pages, not the platform — bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
@@ -20,6 +20,8 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+Tech stack: Next.js `16.3.5`, React `19.2.8`, Tailwind CSS `4`, TypeScript `5`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
@@ -28,6 +30,8 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+To learn more about Big Things Software, visit [bigthingssoftware.org](https://bigthingssoftware.org) or [join the Discord](https://discord.gg/8FXs9WhC8t).
 
 ## Deploy on Vercel
 

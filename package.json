@@ -1,5 +1,5 @@
 {
-  "name": "big-things-software",
+  "name": "bigthings-static",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,16 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@radix-ui/react-accordion": "^1.2.20",
-    "autoprefixer": "^10.4.24",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "framer-motion": "^12.34.5",
-    "lucide-react": "^1.33.0",
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "tailwind-merge": "^3.6.0"
+    "next": "16.3.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -26,7 +19,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
