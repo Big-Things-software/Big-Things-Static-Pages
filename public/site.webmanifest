@@ -1,0 +1,16 @@
+{
+  "name": "Big Things",
+  "short_name": "Big Things",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060a10",
+  "theme_color": "#060a10",
+  "icons": [
+    { "src": "/icons/favicon.png", "sizes": "500x500", "type": "image/png" },
+    { "src": "/icons/normal-logo.png", "sizes": "500x500", "type": "image/png" },
+    { "src": "/icons/light-logo.png", "sizes": "770x770", "type": "image/png" },
+    { "src": "/icons/dark-logo.png", "sizes": "800x800", "type": "image/png" },
+    { "src": "/icons/transparent-logo.png", "sizes": "990x990", "type": "image/png" },
+    { "src": "/icons/animated-logo.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
