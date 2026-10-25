@@ -105,6 +105,28 @@ export default function Home() {
         @keyframes slot-drift { to { background-position: -200% 0; } }
       `}</style>
 
+<div className="pt-16 relative z-10 w-full border-b border-border bg-muted/50 py-3 px-4 text-center">
+  <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-3 text-sm text-slate-200">
+    <span>
+      Signups for the &quot;Create Your Own HTML Page&quot; program are now open!
+    </span>
+    <div className="flex items-center gap-2">
+      <a
+        href="https://pearedco.org/events/details.html?eventId=6ab33f0869c0d541982d0ca4"
+        className="rounded-md border border-slate-700 bg-slate-800/80 px-3 py-1 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors"
+      >
+        Event Details
+      </a>
+      <a
+        href="https://www.remind.com/join/bthings"
+        className="rounded-md bg-sky-500 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-400 transition-colors"
+      >
+        Join Event
+      </a>
+    </div>
+  </div>
+</div>
+
       <Hero />
 
       {/* everything below the hero sits on one continuous dark/tech shell */}
