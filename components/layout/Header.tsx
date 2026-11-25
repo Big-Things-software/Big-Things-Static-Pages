@@ -15,6 +15,7 @@ type NavItem = {
   href: string;
   label: string;
   columns?: DropdownColumn[];
+  bold?: boolean;
 };
 
 const navItems: NavItem[] = [
@@ -90,7 +91,7 @@ const navItems: NavItem[] = [
       },
     ],
   },
-  { href: "/donate", label: "Donate" },
+  { href: "/donate", label: "Donate", bold: true },
 ];
 
 function Logo({ className }: { className?: string }) {
@@ -256,7 +257,7 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <Link key={item.href} href={item.href} onClick={closeMenu} className="text-[15px] font-medium text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]">
+              <Link key={item.href} href={item.href} onClick={closeMenu} className={`text-[15px] ${item.bold ? "font-bold" : "font-medium"} text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]`}>
                 {item.label}
               </Link>
             ),
