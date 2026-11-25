@@ -106,18 +106,19 @@ function Logo({ className }: { className?: string }) {
   );
 }
 
-function Chevron() {
+function Chevron({ "data-open": dataOpen }: { "data-open"?: string }) {
   return (
     <svg
-      className="size-4 shrink-0 text-[#7DE3FF] transition-transform data-[open]:rotate-180"
+      className={`size-4 shrink-0 text-[#7DE3FF] transition-transform duration-200 ease-out ${dataOpen ? "rotate-180" : ""}`}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
+      data-open={dataOpen}
     >
-      <path d="m6 9 6 6 6-6" />
+      <path d="m6 9 6-6 6 6" />
     </svg>
   );
 }
@@ -182,7 +183,29 @@ export default function Header() {
     };
   }, [openMenu]);
 
-  const closeMenu = () => setOpenMenu(null);
+  const closeTimerRef = useRef<number | null>(null);
+
+  const cancelCloseTimer = () => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const openItem = (href: string) => {
+    cancelCloseTimer();
+    setOpenMenu(href);
+  };
+
+  const scheduleClose = () => {
+    cancelCloseTimer();
+    closeTimerRef.current = window.setTimeout(() => setOpenMenu(null), 300);
+  };
+
+  const closeMenu = () => {
+    cancelCloseTimer();
+    setOpenMenu(null);
+  };
 
   return (
     <header className="fixed left-4 right-4 top-2 z-10 h-14 rounded-2xl border border-zinc-200/70 bg-white/85 shadow-2xl shadow-zinc-200/40 backdrop-blur-2xl backdrop-saturate-200 supports-[backdrop-filter]:bg-white/85 dark:border-white/10 dark:bg-[#060A10]/85 dark:shadow-[#060A10]/60">
@@ -202,20 +225,26 @@ export default function Header() {
         <nav className="hidden items-center gap-5 md:flex">
           {navItems.map((item) =>
             item.columns ? (
-              <div key={item.href} className="relative">
+              <div
+                key={item.href}
+                className="relative"
+                onMouseEnter={() => openItem(item.href)}
+                onMouseLeave={() => scheduleClose()}
+              >
                 <button
                   type="button"
                   className="flex items-center gap-1 text-[15px] font-medium text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
-                  onClick={() =>
-                    setOpenMenu((open) => (open === item.href ? null : item.href))
-                  }
                   aria-expanded={openMenu === item.href}
                 >
                   {item.label}
                   <Chevron data-open={openMenu === item.href ? "true" : undefined} />
                 </button>
                 {openMenu === item.href && (
-                  <div className="absolute left-0 top-full z-20 mt-3 grid w-[560px] grid-cols-2 gap-7 rounded-2xl border border-zinc-200/70 bg-white/95 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-2xl dark:border-white/10 dark:bg-[#060A10]/98">
+                  <div
+                    className="absolute left-0 top-full z-20 mt-3 grid w-[560px] grid-cols-2 gap-7 rounded-2xl border border-zinc-200/70 bg-white/95 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-2xl dark:border-white/10 dark:bg-[#060A10]/98"
+                    onMouseEnter={() => openItem(item.href)}
+                    onMouseLeave={() => scheduleClose()}
+                  >
                     {item.columns.map((column) => (
                       <MegaDropdown
                         key={column.title}
