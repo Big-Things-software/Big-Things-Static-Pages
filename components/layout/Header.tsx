@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 type DropdownLink = { href: string; label: string; desc: string };
@@ -181,10 +182,17 @@ function MegaDropdown({
 }
 
 export default function Header() {
+  const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSubmenus, setMobileSubmenus] = useState<Record<string, boolean>>({});
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const isActive = (href: string) => {
+    if (!pathname) return false;
+    if (pathname === href) return true;
+    return href !== "/" && pathname.startsWith(`${href}/`);
+  };
   const closeTimerRef = useRef<number | null>(null);
 
   const cancelCloseTimer = () => {
@@ -273,7 +281,7 @@ export default function Header() {
                 >
                   <button
                     type="button"
-                    className="flex items-center gap-1 text-[15px] font-medium text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
+                    className={`flex items-center gap-1 text-[15px] ${isActive(item.href) ? "font-bold text-[#00C9FF] dark:text-[#00C9FF]" : "font-medium text-zinc-800 dark:text-zinc-200"} transition-colors hover:text-[#00C9FF] dark:hover:text-[#7DE3FF]`}
                     aria-expanded={openMenu === item.href}
                     onFocus={() => openItem(item.href)}
                   >
@@ -325,8 +333,10 @@ export default function Header() {
                   href={item.href}
                   onClick={closeMenu}
                   className={`text-[15px] ${
-                    item.bold ? "font-bold" : "font-medium"
-                  } text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]`}
+                    isActive(item.href)
+                      ? "font-bold text-[#00C9FF] dark:text-[#00C9FF]"
+                      : `${item.bold ? "font-bold" : "font-medium"} text-zinc-800 dark:text-zinc-200`
+                  } transition-colors hover:text-[#00C9FF] dark:hover:text-[#7DE3FF]`}
                 >
                   {item.label}
                 </Link>
@@ -389,7 +399,7 @@ export default function Header() {
                             }
                           : () => setMobileOpen(false)
                       }
-                      className="flex items-center justify-between rounded-lg px-3 py-2.5 text-[15px] font-semibold text-zinc-800 hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
+                      className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-[15px] ${isActive(item.href) ? "font-bold text-[#00C9FF] dark:text-[#00C9FF]" : "font-semibold text-zinc-800 dark:text-zinc-200"} hover:text-[#00C9FF] dark:hover:text-[#7DE3FF]`}
                     >
                       {item.label}
                       {item.columns && <Chevron open={submenuOpen} />}
