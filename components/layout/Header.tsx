@@ -160,6 +160,7 @@ function MegaDropdown({
 
 export default function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [showMenu, setShowMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -170,11 +171,11 @@ export default function Header() {
         containerRef.current &&
         !containerRef.current.contains(event.target as Node)
       ) {
-        setOpenMenu(null);
+        closeMenu();
       }
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpenMenu(null);
+      if (event.key === "Escape") closeMenu();
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -195,16 +196,21 @@ export default function Header() {
 
   const openItem = (href: string) => {
     cancelCloseTimer();
+    setShowMenu(href);
     setOpenMenu(href);
   };
 
   const scheduleClose = () => {
     cancelCloseTimer();
-    closeTimerRef.current = window.setTimeout(() => setOpenMenu(null), 300);
+    closeTimerRef.current = window.setTimeout(() => {
+      setOpenMenu(null);
+      setTimeout(() => setShowMenu(null), 300);
+    }, 300);
   };
 
   const closeMenu = () => {
     cancelCloseTimer();
+    setShowMenu(null);
     setOpenMenu(null);
   };
 
@@ -240,9 +246,11 @@ export default function Header() {
                   {item.label}
                   <Chevron data-open={openMenu === item.href ? "true" : undefined} />
                 </button>
-                {openMenu === item.href && (
+                {showMenu === item.href && (
                   <div
-                    className="absolute left-0 top-full z-20 mt-6 grid w-[560px] grid-cols-2 gap-7 rounded-2xl border border-zinc-200/70 bg-white/95 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-2xl dark:border-white/10 dark:bg-[#060A10]/98"
+                    data-open={openMenu === item.href ? "true" : undefined}
+                    className={`absolute left-0 top-full z-20 mt-6 grid ${item.columns.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-7 rounded-2xl border border-zinc-200/70 bg-white/95 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-2xl transition-all duration-300 ease-out ${openMenu === item.href ? "animate-dropdown-in animate-dropdown-glow opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-[0.97] pointer-events-none"} dark:border-white/10 dark:bg-[#060A10]/98`}
+                    style={{ width: `min(${item.columns.length * 320}px, 640px)` }}
                     onMouseEnter={() => openItem(item.href)}
                     onMouseLeave={() => scheduleClose()}
                   >
