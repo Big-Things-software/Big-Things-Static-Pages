@@ -133,12 +133,17 @@ function Chevron({
 function MegaDropdown({
   column,
   close,
+  delay = 0,
 }: {
   column: DropdownColumn;
   close: () => void;
+  delay?: number;
 }) {
   return (
-    <div>
+    <div
+      className="animate-dropdown-in"
+      style={{ animationDelay: `${delay}ms` }}
+    >
       <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">
         {column.title}
       </h3>
@@ -227,7 +232,14 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed left-4 right-4 top-2 z-10 h-14 rounded-2xl border border-zinc-200/70 bg-white/60 shadow-2xl shadow-zinc-200/40 backdrop-blur-[170px] backdrop-saturate-[350%] supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-[#060A10]/65 dark:shadow-[#060A10]/60">
+    <>
+      {mobileOpen && (
+        <div
+          className="animate-dim-in fixed inset-0 z-40 bg-black/55 backdrop-blur-[25px] backdrop-saturate-[120%] transition-all duration-300 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+      <header className="fixed left-4 right-4 top-2 z-50 h-14 rounded-2xl border border-zinc-200/70 bg-white/60 shadow-2xl shadow-zinc-200/40 backdrop-blur-[170px] backdrop-saturate-[350%] supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-[#060A10]/65 dark:shadow-[#060A10]/60">
       <div
         ref={containerRef}
         className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
@@ -266,11 +278,12 @@ export default function Header() {
                     onMouseEnter={() => openItem(item.href)}
                     onMouseLeave={() => scheduleClose()}
                   >
-                    {item.columns.map((column) => (
+                    {item.columns.map((column, index) => (
                       <MegaDropdown
                         key={column.title}
                         column={column}
                         close={closeMenu}
+                        delay={index * 60}
                       />
                     ))}
                   </div>
@@ -283,14 +296,6 @@ export default function Header() {
             ),
           )}
         </nav>
-
-        <Link
-          href="#"
-          onClick={closeMenu}
-          className="rounded-full bg-[#00C9FF] px-5 py-2 text-sm font-semibold text-[#060A10] shadow-lg shadow-[#00C9FF]/20 transition-opacity hover:opacity-90"
-        >
-          Launch Platform
-        </Link>
 
         <button
           type="button"
@@ -315,13 +320,13 @@ export default function Header() {
       </div>
 
       {mobileOpen && (
-        <nav className="border-t border-zinc-200/50 bg-white/70 backdrop-blur-[80px] backdrop-saturate-[200%] transition-all duration-300 md:hidden dark:border-white/10 dark:bg-[#060A10]/75">
+        <nav className="border-t border-zinc-200/50 bg-transparent transition-all duration-300 md:hidden dark:border-white/10">
           <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 pb-4 pt-3">
             {navItems.map((item, index) => (
               <div
                 key={item.href}
-                className="animate-dropdown-in"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className="animate-dropdown-in opacity-0"
+                style={{ animationDelay: `${420 + index * 50}ms` }}
               >
                 <Link
                   href={item.href}
@@ -350,9 +355,9 @@ export default function Header() {
                         key={link.href}
                         href={link.href}
                         onClick={() => setMobileOpen(false)}
-                        className="ml-3 block animate-dropdown-in rounded-lg px-3 py-2 text-[14px] text-zinc-600 hover:bg-zinc-100/60 dark:text-zinc-400 dark:hover:bg-white/5"
+                        className="ml-3 block animate-dropdown-in opacity-0 rounded-lg px-3 py-2 text-[14px] text-zinc-600 hover:bg-zinc-100/60 dark:text-zinc-400 dark:hover:bg-white/5"
                         style={{
-                          animationDelay: `${index * 50 + (columnIndex + 1 + linkIndex) * 35}ms`,
+                          animationDelay: `${420 + index * 50 + (columnIndex + 1 + linkIndex) * 40}ms`,
                         }}
                       >
                         {link.label}
@@ -364,14 +369,15 @@ export default function Header() {
             <Link
               href="/hub"
               onClick={() => setMobileOpen(false)}
-              className="animate-dropdown-in mt-3 rounded-full bg-[#00C9FF] px-4 py-2.5 text-center text-sm font-semibold text-[#060A10] shadow-lg shadow-[#00C9FF]/20"
-              style={{ animationDelay: "240ms" }}
+              className="animate-dropdown-in opacity-0 mt-2 rounded-full bg-[#00C9FF] px-4 py-2.5 text-center text-sm font-semibold text-[#060A10] shadow-lg shadow-[#00C9FF]/20"
+              style={{ animationDelay: "430ms" }}
             >
               Launch Platform
             </Link>
           </div>
         </nav>
       )}
-    </header>
+      </header>
+    </>
   );
 }

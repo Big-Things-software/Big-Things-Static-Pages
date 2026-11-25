@@ -10,8 +10,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --animate-dropdown-in: dropdownIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* "both" = hold the first keyframe during the delay AND the last one after */
+  --animate-dropdown-in: dropdownIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-dropdown-glow: dropdownGlow 1.6s ease-in-out infinite;
+  --animate-dim-in: dimEnter 400ms ease-out;
 }
 
 @keyframes dropdownIn {
@@ -24,6 +26,7 @@
     transform: translateY(1px) scale(1.015);
   }
   100% {
+    opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
@@ -35,6 +38,15 @@
   }
   50% {
     opacity: 0.7;
+  }
+}
+
+@keyframes dimEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
