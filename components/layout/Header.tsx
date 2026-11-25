@@ -107,10 +107,16 @@ function Logo({ className }: { className?: string }) {
   );
 }
 
-function Chevron({ "data-open": dataOpen }: { "data-open"?: string }) {
+function Chevron({
+  "data-open": dataOpen,
+  className,
+}: {
+  "data-open"?: string;
+  className?: string;
+}) {
   return (
     <svg
-      className={`size-4 shrink-0 text-[#7DE3FF] transition-transform duration-200 ease-out ${dataOpen ? "rotate-180" : ""}`}
+      className={`size-4 shrink-0 text-[#7DE3FF] transition-transform duration-200 ease-out ${dataOpen ? "rotate-180" : ""} ${className ?? ""}`}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -137,12 +143,13 @@ function MegaDropdown({
         {column.title}
       </h3>
       <ul className="space-y-1">
-        {column.links.map((link) => (
+        {column.links.map((link, index) => (
           <li key={link.href}>
             <Link
               href={link.href}
               onClick={close}
-              className="group flex flex-col gap-0.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100/70 dark:hover:bg-white/5"
+              className="group animate-dropdown-in flex flex-col gap-0.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100/70 dark:hover:bg-white/5"
+              style={{ animationDelay: `${index * 35}ms` }}
             >
               <span className="text-[14px] font-medium text-zinc-800 group-hover:text-[#00C9FF] dark:text-zinc-100 dark:group-hover:text-[#7DE3FF]">
                 {link.label}
@@ -162,6 +169,7 @@ export default function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSubmenus, setMobileSubmenus] = useState<Record<string, boolean>>({});
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -212,6 +220,10 @@ export default function Header() {
     cancelCloseTimer();
     setShowMenu(null);
     setOpenMenu(null);
+  };
+
+  const toggleMobileSubmenu = (href: string) => {
+    setMobileSubmenus((prev) => ({ ...prev, [href]: !prev[href] }));
   };
 
   return (
@@ -303,31 +315,60 @@ export default function Header() {
       </div>
 
       {mobileOpen && (
-        <nav className="border-t border-zinc-200/70 dark:border-white/10 md:hidden">
+        <nav className="border-t border-zinc-200/50 bg-white/70 backdrop-blur-[80px] backdrop-saturate-[200%] transition-all duration-300 md:hidden dark:border-white/10 dark:bg-[#060A10]/75">
           <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 pb-4 pt-3">
-            {navItems.map((item) => (
-              <div key={item.href}>
+            {navItems.map((item, index) => (
+              <div
+                key={item.href}
+                className="animate-dropdown-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
                 <Link
                   href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-zinc-800 hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
+                  onClick={
+                    item.columns
+                      ? (event) => {
+                          event.preventDefault();
+                          toggleMobileSubmenu(item.href);
+                        }
+                      : () => setMobileOpen(false)
+                  }
+                  className="flex items-center justify-between rounded-lg px-3 py-2.5 text-[15px] font-semibold text-zinc-800 hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
                 >
                   {item.label}
+                  {item.columns && (
+                    <Chevron
+                      className="size-4"
+                      data-open={mobileSubmenus[item.href] ? "true" : undefined}
+                    />
+                  )}
                 </Link>
-                {item.columns?.map((column) =>
-                  column.links.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileOpen(false)}
-                      className="ml-3 block rounded-lg px-3 py-2 text-[14px] text-zinc-600 hover:bg-zinc-100/60 dark:text-zinc-400 dark:hover:bg-white/5"
-                    >
-                      {link.label}
-                    </Link>
-                  )),
-                )}
+                {mobileSubmenus[item.href] &&
+                  item.columns?.map((column, columnIndex) =>
+                    column.links.map((link, linkIndex) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMobileOpen(false)}
+                        className="ml-3 block animate-dropdown-in rounded-lg px-3 py-2 text-[14px] text-zinc-600 hover:bg-zinc-100/60 dark:text-zinc-400 dark:hover:bg-white/5"
+                        style={{
+                          animationDelay: `${index * 50 + (columnIndex + 1 + linkIndex) * 35}ms`,
+                        }}
+                      >
+                        {link.label}
+                      </Link>
+                    )),
+                  )}
               </div>
             ))}
+            <Link
+              href="/hub"
+              onClick={() => setMobileOpen(false)}
+              className="animate-dropdown-in mt-3 rounded-full bg-[#00C9FF] px-4 py-2.5 text-center text-sm font-semibold text-[#060A10] shadow-lg shadow-[#00C9FF]/20"
+              style={{ animationDelay: "240ms" }}
+            >
+              Launch Platform
+            </Link>
           </div>
         </nav>
       )}
