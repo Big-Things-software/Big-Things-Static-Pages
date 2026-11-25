@@ -1,14 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-type NavLink = { href: string; label: string };
+const ACCENT = "#00C9FF";
+const DEEP_NAVY = "#060A10";
+
+type DropdownLink = { href: string; label: string; desc: string };
+
+type DropdownColumn = { title: string; links: DropdownLink[] };
 
 type NavItem = {
   href: string;
   label: string;
-  children?: NavLink[];
+  columns?: DropdownColumn[];
 };
 
 const navItems: NavItem[] = [
@@ -16,62 +22,94 @@ const navItems: NavItem[] = [
   {
     href: "/hub",
     label: "Hub",
-    children: [
-      { href: "/hub", label: "Browse All Software" },
-      { href: "/hub/bundles", label: "Bundles" },
-      { href: "/hub/categories", label: "Categories" },
-      { href: "/hub/discover", label: "Discover" },
-      { href: "/hub/discover/guides", label: "Guides & Playbooks" },
-      { href: "/hub/discover/newsletter", label: "Newsletter & Archive" },
-      { href: "/hub/funded", label: "Featured" },
-      { href: "/hub/new", label: "New & Noteworthy" },
+    columns: [
+      {
+        title: "Browse the Catalog",
+        links: [
+          { href: "/hub", label: "Browse All Software", desc: "skibidi" },
+          { href: "/hub/categories", label: "Browse by Topic", desc: "skibidi" },
+          { href: "/hub/bundles", label: "Curated Software Packs", desc: "skibidi" },
+          { href: "/hub/discover", label: "Discover", desc: "skibidi" },
+          { href: "/hub/funded", label: "Recently Funded", desc: "skibidi" },
+          { href: "/hub/new", label: "New & Noteworthy", desc: "skibidi" },
+        ],
+      },
+      {
+        title: "Discovery",
+        links: [
+          { href: "/hub/discover/guides", label: "Guides & Playbooks", desc: "skibidi" },
+          { href: "/hub/discover/newsletter", label: "Newsletter & Archive", desc: "skibidi" },
+        ],
+      },
     ],
   },
   {
     href: "/about",
     label: "About",
-    children: [
-      { href: "/about", label: "About" },
-      { href: "/about/partners", label: "Partners" },
-      { href: "/about/press", label: "Press Kit" },
-      { href: "/about/team", label: "Team" },
-      { href: "/about/transparency", label: "Transparency & Financials" },
+    columns: [
+      {
+        title: "About Big Things",
+        links: [
+          { href: "/about", label: "About", desc: "skibidi" },
+          { href: "/about/partners", label: "Partners", desc: "skibidi" },
+          { href: "/about/press", label: "Press Kit", desc: "skibidi" },
+          { href: "/about/team", label: "Team", desc: "skibidi" },
+          { href: "/about/transparency", label: "Transparency & Financials", desc: "skibidi" },
+        ],
+      },
     ],
   },
-  { href: "/donate", label: "Donate" },
   {
     href: "/support",
     label: "Support",
-    children: [
-      { href: "/support", label: "Support" },
-      { href: "/support/faq", label: "FAQ" },
-      { href: "/support/contact", label: "Contact" },
-      { href: "/support/builders", label: "For Builders" },
-      { href: "/support/communities", label: "For Communities" },
+    columns: [
+      {
+        title: "Support",
+        links: [
+          { href: "/support", label: "Support", desc: "skibidi" },
+          { href: "/support/faq", label: "FAQ", desc: "skibidi" },
+          { href: "/support/contact", label: "Contact", desc: "skibidi" },
+          { href: "/support/builders", label: "For Builders", desc: "skibidi" },
+          { href: "/support/communities", label: "For Communities", desc: "skibidi" },
+        ],
+      },
     ],
   },
   {
     href: "/legal",
     label: "Legal",
-    children: [
-      { href: "/legal", label: "Legal" },
-      { href: "/legal/privacy", label: "Privacy Policy" },
-      { href: "/legal/terms", label: "Terms of Service" },
-      { href: "/legal/security", label: "Security" },
+    columns: [
+      {
+        title: "Legal",
+        links: [
+          { href: "/legal", label: "Legal", desc: "skibidi" },
+          { href: "/legal/privacy", label: "Privacy Policy", desc: "skibidi" },
+          { href: "/legal/terms", label: "Terms of Service", desc: "skibidi" },
+          { href: "/legal/security", label: "Security", desc: "skibidi" },
+        ],
+      },
     ],
   },
+  { href: "/donate", label: "Donate" },
 ];
 
-const linkClassName =
-  "text-sm text-zinc-600 transition-colors hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50";
-
-const dropdownItemClassName =
-  "block rounded-md px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900/80 dark:hover:text-zinc-50";
+function Logo({ className }: { className?: string }) {
+  return (
+    <Image
+      src="/icons/animated-logo.svg"
+      alt="Big Things"
+      width={24}
+      height={24}
+      className={className}
+      unoptimized
+    />
+  );
+}
 
 function Chevron() {
   return (
     <svg
-      className="size-4 shrink-0 text-zinc-400 transition-transform data-[open]:rotate-180"
+      className="size-4 shrink-0 text-[#7DE3FF] transition-transform data-[open]:rotate-180"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -81,6 +119,40 @@ function Chevron() {
     >
       <path d="m6 9 6 6 6-6" />
     </svg>
+  );
+}
+
+function MegaDropdown({
+  column,
+  close,
+}: {
+  column: DropdownColumn;
+  close: () => void;
+}) {
+  return (
+    <div>
+      <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">
+        {column.title}
+      </h3>
+      <ul className="space-y-1">
+        {column.links.map((link) => (
+          <li key={link.href}>
+            <Link
+              href={link.href}
+              onClick={close}
+              className="group flex flex-col gap-0.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100/70 dark:hover:bg-white/5"
+            >
+              <span className="text-[14px] font-medium text-zinc-800 group-hover:text-[#00C9FF] dark:text-zinc-100 dark:group-hover:text-[#7DE3FF]">
+                {link.label}
+              </span>
+              <span className="max-w-sm text-[12.5px] leading-snug text-zinc-500 dark:text-zinc-400">
+                {link.desc}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -110,26 +182,30 @@ export default function Header() {
     };
   }, [openMenu]);
 
+  const closeMenu = () => setOpenMenu(null);
+
   return (
-    <header className="sticky top-0 z-10 border-b border-zinc-200/80 bg-white/80 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-white/70 dark:border-zinc-800/80 dark:bg-black/80">
+    <header className="fixed left-4 right-4 top-2 z-10 h-14 rounded-2xl border border-zinc-200/70 bg-white/85 shadow-2xl shadow-zinc-200/40 backdrop-blur-2xl backdrop-saturate-200 supports-[backdrop-filter]:bg-white/85 dark:border-white/10 dark:bg-[#060A10]/85 dark:shadow-[#060A10]/60">
       <div
         ref={containerRef}
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+        className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
       >
         <Link
           href="/"
-          className="text-base font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
+          onClick={closeMenu}
+          className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
         >
+          <Logo className="size-6.5" />
           Big Things
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-5 md:flex">
           {navItems.map((item) =>
-            item.children ? (
+            item.columns ? (
               <div key={item.href} className="relative">
                 <button
                   type="button"
-                  className="flex items-center gap-1 text-sm text-zinc-600 transition-colors hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+                  className="flex items-center gap-1 text-[15px] font-medium text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
                   onClick={() =>
                     setOpenMenu((open) => (open === item.href ? null : item.href))
                   }
@@ -139,33 +215,19 @@ export default function Header() {
                   <Chevron data-open={openMenu === item.href ? "true" : undefined} />
                 </button>
                 {openMenu === item.href && (
-                  <div className="absolute right-0 top-full mt-2 min-w-[230px] rounded-lg border border-zinc-200/80 bg-white p-1.5 shadow-lg dark:border-zinc-800/80 dark:bg-black">
-                    <Link
-                      href={item.href}
-                      className={dropdownItemClassName}
-                      onClick={() => setOpenMenu(null)}
-                    >
-                      {item.label}
-                    </Link>
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        className={dropdownItemClassName}
-                        onClick={() => setOpenMenu(null)}
-                      >
-                        {child.label}
-                      </Link>
+                  <div className="absolute left-0 top-full z-20 mt-3 grid w-[560px] grid-cols-2 gap-7 rounded-2xl border border-zinc-200/70 bg-white/95 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-2xl dark:border-white/10 dark:bg-[#060A10]/98">
+                    {item.columns.map((column) => (
+                      <MegaDropdown
+                        key={column.title}
+                        column={column}
+                        close={closeMenu}
+                      />
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={linkClassName}
-              >
+              <Link key={item.href} href={item.href} onClick={closeMenu} className="text-[15px] font-medium text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]">
                 {item.label}
               </Link>
             ),
@@ -174,33 +236,18 @@ export default function Header() {
 
         <button
           type="button"
-          className="rounded-md p-2 text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50 md:hidden"
+          className="rounded-lg p-2 text-zinc-800 hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF] md:hidden"
           onClick={() => setMobileOpen((open) => !open)}
           aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={mobileOpen}
         >
           {mobileOpen ? (
-            <svg
-              className="size-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            >
+            <svg className="size-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               <path d="M18 6 6 18" />
               <path d="m6 6 12 12" />
             </svg>
           ) : (
-            <svg
-              className="size-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg className="size-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 7h16" />
               <path d="M4 12h16" />
               <path d="M4 17h16" />
@@ -210,27 +257,29 @@ export default function Header() {
       </div>
 
       {mobileOpen && (
-        <nav className="border-t border-zinc-200/80 dark:border-zinc-800/80 md:hidden">
-          <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3">
+        <nav className="border-t border-zinc-200/70 dark:border-white/10 md:hidden">
+          <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 pb-4 pt-3">
             {navItems.map((item) => (
               <div key={item.href}>
                 <Link
                   href={item.href}
-                  className="rounded-md px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900/80 dark:hover:text-zinc-50"
                   onClick={() => setMobileOpen(false)}
+                  className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-zinc-800 hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
                 >
                   {item.label}
                 </Link>
-                {item.children?.map((child) => (
-                  <Link
-                    key={child.href}
-                    href={child.href}
-                    className="block rounded-md px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900/80 dark:hover:text-zinc-50"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {child.label}
-                  </Link>
-                ))}
+                {item.columns?.map((column) =>
+                  column.links.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="ml-3 block rounded-lg px-3 py-2 text-[14px] text-zinc-600 hover:bg-zinc-100/60 dark:text-zinc-400 dark:hover:bg-white/5"
+                    >
+                      {link.label}
+                    </Link>
+                  )),
+                )}
               </div>
             ))}
           </div>
