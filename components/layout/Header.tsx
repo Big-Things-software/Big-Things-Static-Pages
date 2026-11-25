@@ -4,9 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-const ACCENT = "#00C9FF";
-const DEEP_NAVY = "#060A10";
-
 type DropdownLink = { href: string; label: string; desc: string };
 
 type DropdownColumn = { title: string; links: DropdownLink[] };
@@ -94,6 +91,9 @@ const navItems: NavItem[] = [
   { href: "/donate", label: "Donate", bold: true },
 ];
 
+const LAUNCH_HREF = "/hub";
+const LAUNCH_LABEL = "Launch Platform";
+
 function Logo({ className }: { className?: string }) {
   return (
     <Image
@@ -107,54 +107,64 @@ function Logo({ className }: { className?: string }) {
   );
 }
 
-function Chevron({
-  "data-open": dataOpen,
-  className,
-}: {
-  "data-open"?: string;
-  className?: string;
-}) {
+function Chevron({ open, className }: { open?: boolean; className?: string }) {
   return (
     <svg
-      className={`size-4 shrink-0 text-[#7DE3FF] transition-transform duration-200 ease-out ${dataOpen ? "rotate-180" : ""} ${className ?? ""}`}
+      className={`size-4 shrink-0 text-[#7DE3FF] transition-transform duration-200 ease-out ${
+        open ? "rotate-180" : ""
+      } ${className ?? ""}`}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      data-open={dataOpen}
     >
-      <path d="m6 9 6-6 6 6" />
+      <path d="m6 9 6 6 6-6" />
     </svg>
   );
 }
 
+/**
+ * Stays mounted. Items transition from hidden -> shown with a stagger that
+ * only applies while opening, so nothing can ever flash before animating.
+ */
 function MegaDropdown({
   column,
+  open,
+  colIndex,
   close,
-  delay = 0,
 }: {
   column: DropdownColumn;
+  open: boolean;
+  colIndex: number;
   close: () => void;
-  delay?: number;
 }) {
+  const base = 60 + colIndex * 90;
+  const itemState = open
+    ? "opacity-100 translate-y-0"
+    : "opacity-0 -translate-y-3";
+
   return (
-    <div
-      className="animate-dropdown-in"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">
+    <div>
+      <h3
+        className={`mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] dark:text-zinc-500 ${itemState}`}
+        style={{ transitionDelay: open ? `${base}ms` : "0ms" }}
+      >
         {column.title}
       </h3>
       <ul className="space-y-1">
         {column.links.map((link, index) => (
-          <li key={link.href}>
+          <li
+            key={link.href}
+            className={`transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${itemState}`}
+            style={{ transitionDelay: open ? `${base + 40 + index * 45}ms` : "0ms" }}
+          >
             <Link
               href={link.href}
               onClick={close}
-              className="group animate-dropdown-in flex flex-col gap-0.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100/70 dark:hover:bg-white/5"
-              style={{ animationDelay: `${index * 35}ms` }}
+              tabIndex={open ? 0 : -1}
+              className="group flex flex-col gap-0.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100/70 dark:hover:bg-white/5"
             >
               <span className="text-[14px] font-medium text-zinc-800 group-hover:text-[#00C9FF] dark:text-zinc-100 dark:group-hover:text-[#7DE3FF]">
                 {link.label}
@@ -172,18 +182,42 @@ function MegaDropdown({
 
 export default function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [showMenu, setShowMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSubmenus, setMobileSubmenus] = useState<Record<string, boolean>>({});
   const containerRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
+
+  const cancelCloseTimer = () => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const openItem = (href: string) => {
+    cancelCloseTimer();
+    setOpenMenu(href);
+  };
+
+  const scheduleClose = () => {
+    cancelCloseTimer();
+    closeTimerRef.current = window.setTimeout(() => setOpenMenu(null), 150);
+  };
+
+  const closeMenu = () => {
+    cancelCloseTimer();
+    setOpenMenu(null);
+  };
+
+  const closeAll = () => {
+    closeMenu();
+    setMobileOpen(false);
+  };
 
   useEffect(() => {
     if (!openMenu) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         closeMenu();
       }
     };
@@ -198,185 +232,219 @@ export default function Header() {
     };
   }, [openMenu]);
 
-  const closeTimerRef = useRef<number | null>(null);
-
-  const cancelCloseTimer = () => {
-    if (closeTimerRef.current !== null) {
-      window.clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
-  };
-
-  const openItem = (href: string) => {
-    cancelCloseTimer();
-    setShowMenu(href);
-    setOpenMenu(href);
-  };
-
-  const scheduleClose = () => {
-    cancelCloseTimer();
-    closeTimerRef.current = window.setTimeout(() => {
-      setOpenMenu(null);
-      setTimeout(() => setShowMenu(null), 300);
-    }, 300);
-  };
-
-  const closeMenu = () => {
-    cancelCloseTimer();
-    setShowMenu(null);
-    setOpenMenu(null);
-  };
+  useEffect(() => cancelCloseTimer, []);
 
   const toggleMobileSubmenu = (href: string) => {
     setMobileSubmenus((prev) => ({ ...prev, [href]: !prev[href] }));
   };
 
+  const MOBILE_BASE = 100; // ms before the first mobile item appears
+
   return (
     <>
       {mobileOpen && (
         <div
-          className="animate-dim-in fixed inset-0 z-40 bg-black/55 backdrop-blur-[25px] backdrop-saturate-[120%] transition-all duration-300 md:hidden"
+          className="animate-dim-in fixed inset-0 z-40 bg-black/55 backdrop-blur-[25px] backdrop-saturate-[120%] md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
-      <header className="fixed left-4 right-4 top-2 z-50 h-14 rounded-2xl border border-zinc-200/70 bg-white/60 shadow-2xl shadow-zinc-200/40 backdrop-blur-[170px] backdrop-saturate-[350%] supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-[#060A10]/65 dark:shadow-[#060A10]/60">
-      <div
-        ref={containerRef}
-        className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
-      >
-        <Link
-          href="/"
-          onClick={closeMenu}
-          className="flex items-center gap-3 text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
+      <header className="fixed left-4 right-4 top-2 z-50 rounded-2xl border border-zinc-200/70 bg-white/60 shadow-2xl shadow-zinc-200/40 backdrop-blur-[170px] backdrop-saturate-[350%] supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-[#060A10]/65 dark:shadow-[#060A10]/60">
+        <div
+          ref={containerRef}
+          className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
         >
-          <Logo className="size-12" />
-          Big Things
-        </Link>
+          <Link
+            href="/"
+            onClick={closeAll}
+            className="flex items-center gap-3 text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
+          >
+            <Logo className="size-12" />
+            Big Things
+          </Link>
 
-        <nav className="hidden items-center gap-5 md:flex mx-auto">
-          {navItems.map((item) =>
-            item.columns ? (
-              <div
-                key={item.href}
-                className="relative"
-                onMouseEnter={() => openItem(item.href)}
-                onMouseLeave={() => scheduleClose()}
-              >
-                <button
-                  type="button"
-                  className="flex items-center gap-1 text-[15px] font-medium text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
-                  aria-expanded={openMenu === item.href}
+          <nav className="mx-auto hidden items-center gap-5 md:flex">
+            {navItems.map((item) =>
+              item.columns ? (
+                <div
+                  key={item.href}
+                  className="relative"
+                  onMouseEnter={() => openItem(item.href)}
+                  onMouseLeave={scheduleClose}
                 >
-                  {item.label}
-                  <Chevron data-open={openMenu === item.href ? "true" : undefined} />
-                </button>
-                {showMenu === item.href && (
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-[15px] font-medium text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
+                    aria-expanded={openMenu === item.href}
+                    onFocus={() => openItem(item.href)}
+                  >
+                    {item.label}
+                    <Chevron open={openMenu === item.href} />
+                  </button>
+
+                  {/* Always mounted; pt-4 bridges the hover gap to the button */}
                   <div
-                    data-open={openMenu === item.href ? "true" : undefined}
-                    className={`absolute left-0 top-full z-20 mt-6 grid ${item.columns.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-7 rounded-2xl border border-zinc-200/70 bg-white/65 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-[140px] backdrop-saturate-[350%] transition-all duration-300 ease-out ${openMenu === item.href ? "animate-dropdown-in animate-dropdown-glow opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-[0.97] pointer-events-none"} dark:border-white/10 dark:bg-[#060A10]/80`}
+                    className={`absolute left-0 top-full z-20 pt-4 transition-[visibility] duration-300 ${
+                      openMenu === item.href
+                        ? "visible pointer-events-auto"
+                        : "invisible pointer-events-none"
+                    }`}
                     style={{ width: `min(${item.columns.length * 320}px, 640px)` }}
                     onMouseEnter={() => openItem(item.href)}
-                    onMouseLeave={() => scheduleClose()}
+                    onMouseLeave={scheduleClose}
                   >
-                    {item.columns.map((column, index) => (
-                      <MegaDropdown
-                        key={column.title}
-                        column={column}
-                        close={closeMenu}
-                        delay={index * 60}
+                    <div
+                      className={`relative grid ${
+                        item.columns.length > 1 ? "grid-cols-2" : "grid-cols-1"
+                      } origin-top gap-7 rounded-2xl border border-zinc-200/70 bg-white/65 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-[140px] backdrop-saturate-[350%] transition-[opacity,transform] duration-300 ease-out dark:border-white/10 dark:bg-[#060A10]/80 ${
+                        openMenu === item.href
+                          ? "translate-y-0 scale-100 opacity-100"
+                          : "-translate-y-2 scale-[0.97] opacity-0"
+                      }`}
+                    >
+                      <div
+                        aria-hidden
+                        className={`pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-[#00C9FF]/30 ${
+                          openMenu === item.href ? "animate-dropdown-glow" : "opacity-0"
+                        }`}
                       />
-                    ))}
+                      {item.columns.map((column, index) => (
+                        <MegaDropdown
+                          key={column.title}
+                          column={column}
+                          open={openMenu === item.href}
+                          colIndex={index}
+                          close={closeMenu}
+                        />
+                      ))}
+                    </div>
                   </div>
-                )}
-              </div>
-            ) : (
-              <Link key={item.href} href={item.href} onClick={closeMenu} className={`text-[15px] ${item.bold ? "font-bold" : "font-medium"} text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]`}>
-                {item.label}
-              </Link>
-            ),
-          )}
-        </nav>
-
-        <button
-          type="button"
-          className="rounded-lg p-2 text-zinc-800 hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF] md:hidden"
-          onClick={() => setMobileOpen((open) => !open)}
-          aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? (
-            <svg className="size-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          ) : (
-            <svg className="size-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 7h16" />
-              <path d="M4 12h16" />
-              <path d="M4 17h16" />
-            </svg>
-          )}
-        </button>
-      </div>
-
-      {mobileOpen && (
-        <nav className="border-t border-zinc-200/50 bg-transparent transition-all duration-300 md:hidden dark:border-white/10">
-          <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 pb-4 pt-3">
-            {navItems.map((item, index) => (
-              <div
-                key={item.href}
-                className="animate-dropdown-in opacity-0"
-                style={{ animationDelay: `${420 + index * 50}ms` }}
-              >
+                </div>
+              ) : (
                 <Link
+                  key={item.href}
                   href={item.href}
-                  onClick={
-                    item.columns
-                      ? (event) => {
-                          event.preventDefault();
-                          toggleMobileSubmenu(item.href);
-                        }
-                      : () => setMobileOpen(false)
-                  }
-                  className="flex items-center justify-between rounded-lg px-3 py-2.5 text-[15px] font-semibold text-zinc-800 hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
+                  onClick={closeMenu}
+                  className={`text-[15px] ${
+                    item.bold ? "font-bold" : "font-medium"
+                  } text-zinc-800 transition-colors hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]`}
                 >
                   {item.label}
-                  {item.columns && (
-                    <Chevron
-                      className="size-4"
-                      data-open={mobileSubmenus[item.href] ? "true" : undefined}
-                    />
-                  )}
                 </Link>
-                {mobileSubmenus[item.href] &&
-                  item.columns?.map((column, columnIndex) =>
-                    column.links.map((link, linkIndex) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="ml-3 block animate-dropdown-in opacity-0 rounded-lg px-3 py-2 text-[14px] text-zinc-600 hover:bg-zinc-100/60 dark:text-zinc-400 dark:hover:bg-white/5"
-                        style={{
-                          animationDelay: `${420 + index * 50 + (columnIndex + 1 + linkIndex) * 40}ms`,
-                        }}
+              ),
+            )}
+          </nav>
+
+          {/* Desktop-only launch button */}
+          <Link
+            href={LAUNCH_HREF}
+            onClick={closeMenu}
+            className="hidden rounded-full bg-[#00C9FF] px-4 py-2 text-sm font-semibold text-[#060A10] shadow-lg shadow-[#00C9FF]/20 transition-transform hover:scale-[1.03] md:inline-flex"
+          >
+            {LAUNCH_LABEL}
+          </Link>
+
+          <button
+            type="button"
+            className="rounded-lg p-2 text-zinc-800 hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF] md:hidden"
+            onClick={() => setMobileOpen((open) => !open)}
+            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? (
+              <svg className="size-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            ) : (
+              <svg className="size-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 7h16" />
+                <path d="M4 12h16" />
+                <path d="M4 17h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {mobileOpen && (
+          <nav className="max-h-[calc(100dvh-5.5rem)] overflow-y-auto border-t border-zinc-200/50 md:hidden dark:border-white/10">
+            <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 pb-4 pt-3">
+              {navItems.map((item, index) => {
+                const itemDelay = MOBILE_BASE + index * 50;
+                const submenuOpen = !!mobileSubmenus[item.href];
+                const links = item.columns?.flatMap((column) => column.links);
+
+                return (
+                  <div
+                    key={item.href}
+                    className="animate-dropdown-in"
+                    style={{ animationDelay: `${itemDelay}ms` }}
+                  >
+                    <Link
+                      href={item.href}
+                      onClick={
+                        item.columns
+                          ? (event) => {
+                              event.preventDefault();
+                              toggleMobileSubmenu(item.href);
+                            }
+                          : () => setMobileOpen(false)
+                      }
+                      className="flex items-center justify-between rounded-lg px-3 py-2.5 text-[15px] font-semibold text-zinc-800 hover:text-[#00C9FF] dark:text-zinc-200 dark:hover:text-[#7DE3FF]"
+                    >
+                      {item.label}
+                      {item.columns && <Chevron open={submenuOpen} />}
+                    </Link>
+
+                    {/* Sliding submenu: always mounted, height animates 0fr <-> 1fr */}
+                    {links && (
+                      <div
+                        aria-hidden={!submenuOpen}
+                        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+                          submenuOpen
+                            ? "grid-rows-[1fr] opacity-100"
+                            : "grid-rows-[0fr] opacity-0"
+                        }`}
                       >
-                        {link.label}
-                      </Link>
-                    )),
-                  )}
-              </div>
-            ))}
-            <Link
-              href="/hub"
-              onClick={() => setMobileOpen(false)}
-              className="animate-dropdown-in opacity-0 mt-2 rounded-full bg-[#00C9FF] px-4 py-2.5 text-center text-sm font-semibold text-[#060A10] shadow-lg shadow-[#00C9FF]/20"
-              style={{ animationDelay: "430ms" }}
-            >
-              Launch Platform
-            </Link>
-          </div>
-        </nav>
-      )}
+                        <div className="overflow-hidden">
+                          {links.map((link, linkIndex) => (
+                            <Link
+                              key={link.href}
+                              href={link.href}
+                              tabIndex={submenuOpen ? 0 : -1}
+                              onClick={() => setMobileOpen(false)}
+                              className={`ml-3 block rounded-lg px-3 py-2 text-[14px] text-zinc-600 transition-[opacity,transform] duration-300 ease-out hover:bg-zinc-100/60 dark:text-zinc-400 dark:hover:bg-white/5 ${
+                                submenuOpen
+                                  ? "translate-x-0 opacity-100"
+                                  : "-translate-x-4 opacity-0"
+                              }`}
+                              style={{
+                                transitionDelay: submenuOpen
+                                  ? `${80 + linkIndex * 40}ms`
+                                  : "0ms",
+                              }}
+                            >
+                              {link.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Mobile-only launch button */}
+              <Link
+                href={LAUNCH_HREF}
+                onClick={() => setMobileOpen(false)}
+                className="animate-dropdown-in mt-2 rounded-full bg-[#00C9FF] px-4 py-2.5 text-center text-sm font-semibold text-[#060A10] shadow-lg shadow-[#00C9FF]/20"
+                style={{ animationDelay: `${MOBILE_BASE + navItems.length * 50}ms` }}
+              >
+                {LAUNCH_LABEL}
+              </Link>
+            </div>
+          </nav>
+        )}
       </header>
     </>
   );
