@@ -217,13 +217,13 @@ export default function Header() {
         <Link
           href="/"
           onClick={closeMenu}
-          className="flex items-center gap-1.5 text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
+          className="flex items-center gap-3 text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
         >
           <Logo className="size-12" />
           Big Things
         </Link>
 
-        <nav className="hidden items-center gap-5 md:flex">
+        <nav className="hidden items-center gap-5 md:flex mx-auto">
           {navItems.map((item) =>
             item.columns ? (
               <div
@@ -263,6 +263,14 @@ export default function Header() {
             ),
           )}
         </nav>
+
+        <Link
+          href="#"
+          onClick={closeMenu}
+          className="rounded-full bg-[#00C9FF] px-5 py-2 text-sm font-semibold text-[#060A10] shadow-lg shadow-[#00C9FF]/20 transition-opacity hover:opacity-90"
+        >
+          Launch Platform
+        </Link>
 
         <button
           type="button"
