@@ -193,9 +193,9 @@ export default function Header() {
         <Link
           href="/"
           onClick={closeMenu}
-          className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
+          className="flex items-center gap-1.5 text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
         >
-          <Logo className="size-6.5" />
+          <Logo className="size-12" />
           Big Things
         </Link>
 
