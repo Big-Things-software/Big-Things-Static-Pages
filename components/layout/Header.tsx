@@ -242,7 +242,7 @@ export default function Header() {
                 </button>
                 {openMenu === item.href && (
                   <div
-                    className="absolute left-0 top-full z-20 mt-3 grid w-[560px] grid-cols-2 gap-7 rounded-2xl border border-zinc-200/70 bg-white/95 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-2xl dark:border-white/10 dark:bg-[#060A10]/98"
+                    className="absolute left-0 top-full z-20 mt-6 grid w-[560px] grid-cols-2 gap-7 rounded-2xl border border-zinc-200/70 bg-white/95 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-2xl dark:border-white/10 dark:bg-[#060A10]/98"
                     onMouseEnter={() => openItem(item.href)}
                     onMouseLeave={() => scheduleClose()}
                   >
