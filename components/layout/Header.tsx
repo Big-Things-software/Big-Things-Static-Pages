@@ -215,7 +215,7 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed left-4 right-4 top-2 z-10 h-14 rounded-2xl border border-zinc-200/70 bg-white/85 shadow-2xl shadow-zinc-200/40 backdrop-blur-2xl backdrop-saturate-200 supports-[backdrop-filter]:bg-white/85 dark:border-white/10 dark:bg-[#060A10]/85 dark:shadow-[#060A10]/60">
+    <header className="fixed left-4 right-4 top-2 z-10 h-14 rounded-2xl border border-zinc-200/70 bg-white/60 shadow-2xl shadow-zinc-200/40 backdrop-blur-[170px] backdrop-saturate-[350%] supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-[#060A10]/65 dark:shadow-[#060A10]/60">
       <div
         ref={containerRef}
         className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
@@ -249,7 +249,7 @@ export default function Header() {
                 {showMenu === item.href && (
                   <div
                     data-open={openMenu === item.href ? "true" : undefined}
-                    className={`absolute left-0 top-full z-20 mt-6 grid ${item.columns.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-7 rounded-2xl border border-zinc-200/70 bg-white/95 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-2xl transition-all duration-300 ease-out ${openMenu === item.href ? "animate-dropdown-in animate-dropdown-glow opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-[0.97] pointer-events-none"} dark:border-white/10 dark:bg-[#060A10]/98`}
+                    className={`absolute left-0 top-full z-20 mt-6 grid ${item.columns.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-7 rounded-2xl border border-zinc-200/70 bg-white/65 p-5 shadow-2xl shadow-[#060A10]/15 backdrop-blur-[140px] backdrop-saturate-[350%] transition-all duration-300 ease-out ${openMenu === item.href ? "animate-dropdown-in animate-dropdown-glow opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-[0.97] pointer-events-none"} dark:border-white/10 dark:bg-[#060A10]/80`}
                     style={{ width: `min(${item.columns.length * 320}px, 640px)` }}
                     onMouseEnter={() => openItem(item.href)}
                     onMouseLeave={() => scheduleClose()}
